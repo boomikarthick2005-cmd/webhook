@@ -1,7 +1,8 @@
 version: 0.2
 env:
   variables:
-    ECR_REGISTRY: "583323754395.dkr.ecr.us-east-1.amazonaws.com"
+    AWS_DEFAULT_REGION: "eu-north-1"
+    ECR_REGISTRY: "583323754395.dkr.ecr.eu-north-1.amazonaws.com"
     ECR_REPOSITORY: "my-web-app"
 phases:
   install:
