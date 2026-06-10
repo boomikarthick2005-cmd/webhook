@@ -5,18 +5,16 @@ phases:
     commands:
       - echo "Logging in to Amazon ECR..."
       - aws --version
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $(echo $ECR_REPO_URI | cut -d'/' -f1)
+      - export ECR_REGISTRY=583323754395.dkr.ecr.eu-north-1.amazonaws.com
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
   build:
     commands:
-      - echo "Building the Docker image..."
-      # ✅ Build with both commit tag and latest
-      - docker build -t $ECR_REPO_URI:$IMAGE_TAG -t $ECR_REPO_URI:latest .
+      - echo "Building Docker image..."
+      - docker build -t $ECR_REPO_URI:$IMAGE_TAG .
   post_build:
     commands:
-      - echo "Pushing the Docker image..."
+      - echo "Pushing Docker image..."
       - docker push $ECR_REPO_URI:$IMAGE_TAG
-      - docker push $ECR_REPO_URI:latest
-      - echo "Writing imagedefinitions.json..."
       - printf '[{"name":"my-web-app","imageUri":"%s"}]' $ECR_REPO_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
