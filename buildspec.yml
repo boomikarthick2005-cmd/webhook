@@ -24,6 +24,7 @@ phases:
       - echo "Pushing the Docker image..."
       - docker tag my-web-app:latest 583323754395.dkr.ecr.eu-north-1.amazonaws.com/my-web-app:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push 583323754395.dkr.ecr.eu-north-1.amazonaws.com/my-web-app:latest
       - printf '[{"name":"my-web-app","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
   files:
