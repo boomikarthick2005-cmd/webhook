@@ -1,21 +1,29 @@
 version: 0.2
+env:
+  variables:
+    AWS_DEFAULT_REGION: "eu-north-1"
+    ECR_REGISTRY: "583323754395.dkr.ecr.eu-north-1.amazonaws.com"
+    ECR_REPOSITORY: "my-web-app"
 
 phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
       - aws --version
-      - export ECR_REGISTRY=583323754395.dkr.ecr.eu-north-1.amazonaws.com
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      - REPOSITORY_URI=$ECR_REGISTRY/$ECR_REPOSITORY
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
   build:
     commands:
-      - echo "Building Docker image..."
-      - docker build -t $ECR_REPO_URI:$IMAGE_TAG .
+      - echo "Building the Docker image..."
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -t $REPOSITORY_URI:latest .
   post_build:
     commands:
-      - echo "Pushing Docker image..."
-      - docker push $ECR_REPO_URI:$IMAGE_TAG
-      - printf '[{"name":"my-web-app","imageUri":"%s"}]' $ECR_REPO_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo "Pushing the Docker image..."
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo "Writing imagedefinitions.json..."
+      - printf '[{"name":"my-web-app","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
