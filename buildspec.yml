@@ -4,22 +4,22 @@ env:
     AWS_DEFAULT_REGION: "eu-north-1"
     ECR_REGISTRY: "583323754395.dkr.ecr.eu-north-1.amazonaws.com"
     ECR_REPOSITORY: "my-web-app"
+    ImageName: "simple-docker-service"
 
 phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
-      - aws --version
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
       - REPOSITORY_URI=$ECR_REGISTRY/$ECR_REPOSITORY
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
   build:
     commands:
-      - echo "Building the Docker image..."
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -t $REPOSITORY_URI:latest .
+      - echo "Building Docker image..."
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -t $REPOSITORY_URI:latest -f ./Dockerfile .
   post_build:
     commands:
-      - echo "Pushing the Docker image..."
+      - echo "Pushing Docker image..."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
       - echo "Writing imagedefinitions.json..."
